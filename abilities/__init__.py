@@ -2,11 +2,15 @@ from .input_control import InputControl
 from .window_management import WindowManagement
 from .terminal_control import TerminalControl, TerminalSession
 from .file_navigator import FileNavigator
+from .vision import VisionAwareness
+from .app_launcher import AppLauncher
 
 __all__ = [
     'InputControl',
     'WindowManagement',
     'TerminalControl',
     'TerminalSession',
-    'FileNavigator'
+    'FileNavigator',
+    'VisionAwareness',
+    'AppLauncher'
 ]

@@ -14,6 +14,12 @@ from abilities.terminal_control import TerminalControl
 from abilities.file_navigator import FileNavigator
 from abilities.window_management import WindowManagement
 from abilities.input_control import InputControl
+from abilities.app_launcher import AppLauncher
+from abilities.vision import VisionAwareness
+from core.playbooks import PlaybookLibrary
+from core.metrics import MetricsEngine, TaskMetrics
+
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -33,23 +39,48 @@ class TaskOrchestrator:
         self.pc = PCController()
         self.tts = TextToSpeech()
         
-        # Nuevas habilidades de aislamiento (Phase 1 & 2)
+        # Habilidades de aislamiento (Phase 1 & 2)
         self.file_nav = FileNavigator()
         self.term_control = TerminalControl()
+        self.app_launcher = AppLauncher()
+        self.vision = VisionAwareness()
+        
+        # Subsistema de Memorización y Costos (Phase 4)
+        self.playbooks = PlaybookLibrary()
+        self.metrics = MetricsEngine()
 
     async def execute_task(self, task: Dict[str, any]) -> str:
         task_id = task.get("id")
         self.task_queue.increment_attempts(task_id)
         self.task_queue.update_task(task_id, status="in_progress")
 
+        start_time = time.time()
+        desc = task.get("description", "").strip()
+        
+        # 1. Chequeo contra Playbooks para evitar llamar NLP a ciegas
+        known_routine = self.playbooks.find_playbook(desc)
+        if known_routine:
+            # Aquí se ejecutaría un parser simplificado de routine (stub)
+            pass
+
         try:
             result = await self._execute(task)
             self.task_queue.mark_task_completed(task_id, result)
+            
+            # Guardamos la mértica de exito
+            dur = time.time() - start_time
+            self.metrics.record(TaskMetrics(task_id, "general", dur, True, 1))
+            
             logger.info(f"Task completed: {task_id}")
             return result
         except Exception as e:
             error_message = str(e)
             self.task_queue.mark_task_failed(task_id, error_message)
+            
+            # Guardamos la métrica de fallo
+            dur = time.time() - start_time
+            self.metrics.record(TaskMetrics(task_id, "general", dur, False, 1))
+            
             logger.error(f"Task {task_id} failed: {error_message}")
             return error_message
 
@@ -93,26 +124,27 @@ class TaskOrchestrator:
             res = self.file_nav.read_file(filename)
             return f"File snippet: {res.get('content')}"
 
+        if "read screen" in lowered or "ocr" in lowered:
+            res = await self.vision.get_screen_text()
+            return f"Visual text extraction: {res.get('text', res.get('error'))}"
+
         if any(keyword in lowered for keyword in ["open notepad", "open notebook", "notepad"]):
-            self._launch_windows_app("notepad.exe")
+            await self.app_launcher.launch_app("notepad.exe")
             await asyncio.sleep(1)
-            return "Opened Notepad"
+            return "Opened Notepad via AppLauncher"
 
         if any(keyword in lowered for keyword in ["open calculator", "calculator"]):
-            self._launch_windows_app("calc.exe")
+            await self.app_launcher.launch_app("calc.exe")
             await asyncio.sleep(1)
-            return "Opened Calculator"
+            return "Opened Calculator via AppLauncher"
 
         if "open browser" in lowered or "open chrome" in lowered or "open edge" in lowered:
-            if "edge" in lowered:
-                webbrowser.get("windows-default").open("https://www.bing.com")
-            else:
-                webbrowser.open("https://www.google.com")
-            return "Opened web browser"
+            await self.app_launcher.launch_app("msedge.exe")
+            return "Opened Edge browser via AppLauncher"
 
         if "type" in lowered or "write" in lowered or "escribe" in lowered:
             if "notepad" in lowered:
-                self._launch_windows_app("notepad.exe")
+                await self.app_launcher.launch_app("notepad.exe")
                 await asyncio.sleep(1)
                 message = description
                 self.pc.type_text(message)
@@ -133,14 +165,9 @@ class TaskOrchestrator:
         result = await self.ai_manager.generate_text(description, provider=task.get("provider"))
         if not result:
             raise RuntimeError("AI provider failed to generate text")
+        
+        # Phase 4 hook: Si fue una accion nueva completada por AI puramente, guardala como playbook.
+        if "action steps:" in result.lower(): 
+             self.playbooks.save_playbook(desc, [{"ai_derived": result}])
+             
         return result
-
-    def _launch_windows_app(self, executable: str):
-        try:
-            if os.path.exists(executable):
-                subprocess.Popen([executable])
-            else:
-                subprocess.Popen([executable], shell=True)
-            logger.info(f"Launched application: {executable}")
-        except Exception as e:
-            logger.warning(f"Unable to launch {executable}: {e}")
