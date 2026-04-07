@@ -1,0 +1,18 @@
+{
+  "problema": "Cuenta Google Cloud suspendida por violación de ToS",
+  "pasos_inmediatos": [
+    "Detener TODOS los requests a Google Cloud APIs",
+    "Enviar appeal formal a Google Cloud Support",
+    "Configurar OpenAI como proveedor alternativo"
+  ],
+  "tiempo_espera": "2-7 días hábiles para respuesta del appeal",
+  "alternativas": [
+    "OpenAI Codex (ya configurado)",
+    "Otros proveedores: Anthropic Claude, etc."
+  ],
+  "acciones_post_appeal": [
+    "Verificar restablecimiento de cuenta Google Cloud",
+    "Re-habilitar Gemini en SynapseOS",
+    "Probar funcionamiento completo del sistema"
+  ]
+}

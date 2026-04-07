@@ -1,5 +1,5 @@
 # 🧠 SynapseOS
-### *Autonomous AI Operating Agent powered by Google Gemini*
+### *Autonomous AI Operating Agent powered by Multiple AI Providers*
 
 <div align="center">
 
@@ -16,8 +16,9 @@
 
 ## 📋 Descripción
 
-**SynapseOS** es un sistema operativo autónomo que convierte a Google Gemini en una **"trabajadora IA"** capaz de:
+**SynapseOS** es un sistema operativo autónomo que puede **adoptar múltiples proveedores de IA** para convertirse en una "trabajadora IA" capaz de:
 
+✅ **Multi-Provider AI**: Soporta Google Gemini, OpenAI Codex, y puede extenderse a otros proveedores  
 ✅ Recibir y procesar tareas complejas desde clientes vía API  
 ✅ Controlar independientemente una computadora Windows  
 ✅ Tomar decisiones basadas en análisis visual de pantalla (OCR, Vision)  
@@ -26,18 +27,74 @@
 ✅ Gestionar recursos inteligentemente (CPU, RAM, Disk)  
 ✅ Generar ingresos procesando trabajos reales  
 
-> 🎬 **Inspirado en**: Proyecto de IA operativa donde Gemini se convierte en asistente autónomo que trabaja en vivo.
+> 🎬 **Inspirado en**: Proyecto de IA operativa donde múltiples proveedores de IA se convierten en asistentes autónomos que trabajan en vivo.
 
 ### ⚡ Características Clave
 
 | Característica | Descripción |
 |---|---|
+| **Multi-Provider AI** | Soporta Google Gemini, OpenAI Codex, y extensible a otros proveedores |
+| **Provider Adoption** | Puede cambiar dinámicamente entre proveedores de IA según necesidades |
+| **Autonomous Adoption** | El sistema decide qué proveedor usar basado en tarea y disponibilidad |
 | **Multimodal** | Procesa texto, imágenes y análisis visual simultáneamente |
 | **State-Aware** | Adapta comportamiento según estado del sistema real |
 | **Self-Learning** | Mejora con experiencia, crea playbooks automáticos |
 | **Fault Tolerant** | Maneja errores, reintenta, escala inteligentemente |
 | **Cost Optimized** | Minimiza llamadas API mediante context caching (50% off) |
 | **Scalable** | Arquitectura preparada para múltiples instancias |
+
+### 🔧 Funcionalidades Avanzadas
+
+SynapseOS incorpora funcionalidades avanzadas inspiradas en sistemas de IA autónomos:
+
+- **🤖 Sistema Multi-Provider AI**: Soporte para Google Gemini, OpenAI Codex, extensible a otros proveedores
+- **🔄 Provider Adoption Dinámica**: Cambio automático entre proveedores según disponibilidad y tarea
+- **🧠 Sistema de Memoria Persistente**: Almacenamiento SQLite con logs diarios y memoria a largo plazo
+- **🔐 Autenticación OAuth**: Integración segura con OpenAI Codex usando PKCE
+- **🆔 Identidad de Dispositivo**: Claves criptográficas Ed25519 para identificación única
+- **🎯 Sistema de Skills Modulares**: Arquitectura extensible de habilidades (PC control, TTS, OCR, etc.)
+- **📝 Text-to-Speech**: Síntesis de voz natural para comunicación
+- **## 🎭 Sistema Multi-Provider AI
+
+SynapseOS puede **adoptar múltiples proveedores de IA** y cambiar entre ellos dinámicamente según las necesidades:
+
+### Proveedores Soportados
+
+| Proveedor | Estado | Autenticación | Uso |
+|-----------|--------|---------------|-----|
+| **Google Gemini** | ✅ Disponible | API Key | Tareas generales, creatividad |
+| **OpenAI Codex** | 🔄 Próximamente | OAuth 2.0 | Programación, análisis técnico |
+| **Otros** | 🔄 Extensible | Según proveedor | Tareas especializadas |
+
+### Adopción Dinámica
+
+```python
+from main import SynapseOS
+
+system = SynapseOS()
+await system.initialize()
+
+# Ver proveedores disponibles
+providers = system.ai_manager.list_available_providers()
+print(f"Available: {providers}")
+
+# Adoptar un proveedor específico
+await system.adopt_ai_provider("gemini")
+
+# Generar texto con el proveedor actual
+response = await system.generate_text("Hello, what can you do?")
+
+# O especificar proveedor para una tarea específica
+response = await system.generate_text("Explain Python async/await", provider="openai-codex")
+```
+
+### Selección Inteligente
+
+El sistema puede seleccionar automáticamente el mejor proveedor según:
+- **Tipo de tarea**: Creatividad → Gemini, Programación → OpenAI
+- **Disponibilidad**: Cambia a proveedores alternativos si uno falla
+- **Costos**: Optimización automática de uso de API
+- **Preferencias**: Configuración personalizada por usuario
 
 ---
 
@@ -70,8 +127,14 @@ pip install -r requirements.txt
 # Copy example .env
 copy .env.example .env
 
-# Edit .env and add your GEMINI_API_KEY
-# GEMINI_API_KEY=AIza...your_key_here
+# Configure AI Providers
+# Google Gemini (required)
+GEMINI_API_KEY=AIza...your_gemini_key_here
+
+# OpenAI Codex (optional - enables GPT adoption)
+OPENAI_CLIENT_ID=your_openai_client_id
+OPENAI_CLIENT_SECRET=your_openai_client_secret
+OAUTH_REDIRECT_URI=http://localhost:8000/auth/callback
 ```
 
 ### 3️⃣ Ejecutar (en desarrollo)
@@ -79,6 +142,14 @@ copy .env.example .env
 ```bash
 python main.py
 ```
+
+### 4️⃣ Demostración Multi-Provider
+
+```bash
+python demo_providers.py
+```
+
+Muestra cómo SynapseOS puede adoptar diferentes proveedores de IA dinámicamente.
 
 ### Primer Uso - API
 
