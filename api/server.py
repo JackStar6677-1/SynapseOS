@@ -1,4 +1,7 @@
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse
 import logging
@@ -55,4 +58,4 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     # Servidor local para inyectar tareas remotamente o por un front
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api.server:app", host="0.0.0.0", port=8000, reload=True)
